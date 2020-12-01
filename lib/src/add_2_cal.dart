@@ -17,6 +17,7 @@ class Add2Calendar {
       'timeZone': event.timeZone,
       'alarmInterval': event.alarmInterval.inSeconds.toDouble(),
       'allDay': event.allDay,
+      'url': event.url,
     });
     return isAdded;
   }

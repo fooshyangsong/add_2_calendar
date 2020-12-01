@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 /// Class that holds eache event's info.
 class Event {
-  String title, description, location, timeZone;
+  String title, description, location, timeZone,url;
   DateTime startDate, endDate;
   bool allDay;
   //In iOS, you can set alert notification with duration. Ex. Duration(minutes:30) -> After30 min.

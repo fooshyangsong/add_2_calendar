@@ -25,11 +25,16 @@ public class SwiftAdd2CalendarPlugin: NSObject, FlutterPlugin {
           let args = call.arguments as! [String:Any]
           let title = args["title"] as! String
           let desc = args["desc"] as! String
+	      let url = args["url"] as! String
+	      let urlLink = URL(string: url) as! URL
+
+
           let location = args["location"] as! String
           let timeZone = TimeZone(identifier: args["timeZone"] as! String)
-          
+
           addEventToCalendar(title: title,
                              description: desc,
+			                 url: urlLink,
                              location: location,
                              startDate: Date(milliseconds: (args["startDate"] as! Double)),
                              endDate: Date(milliseconds: (args["endDate"] as! Double)),
@@ -46,9 +51,9 @@ public class SwiftAdd2CalendarPlugin: NSObject, FlutterPlugin {
       }
     }
 
-    private func addEventToCalendar(title: String!, description: String, location: String, startDate: Date, endDate: Date, timeZone: TimeZone?, alarmInterval: Double, allDay: Bool, completion: ((_ success: Bool) -> Void)? = nil) {
+    private func addEventToCalendar(title: String!, description: String, url: URL, location: String, startDate: Date, endDate: Date, timeZone: TimeZone?, alarmInterval: Double, allDay: Bool, completion: ((_ success: Bool) -> Void)? = nil) {
         let eventStore = EKEventStore()
-        
+
         eventStore.requestAccess(to: .event, completion: { [weak self] (granted, error) in
             if (granted) && (error == nil) {
                 let event = EKEvent(eventStore: eventStore)
@@ -62,6 +67,7 @@ public class SwiftAdd2CalendarPlugin: NSObject, FlutterPlugin {
                 }
                 event.location = location
                 event.notes = description
+                event.url = url
                 event.isAllDay = allDay
                 self?.presentCalendarModalToAddEvent(event, eventStore: eventStore, completion: completion)
             } else {
@@ -73,9 +79,9 @@ public class SwiftAdd2CalendarPlugin: NSObject, FlutterPlugin {
     private func getAuthorizationStatus() -> EKAuthorizationStatus {
         return EKEventStore.authorizationStatus(for: EKEntityType.event)
     }
-    
+
     // Show event kit ui to add event to calendar
-    
+
     func presentCalendarModalToAddEvent(_ event: EKEvent, eventStore: EKEventStore, completion: ((_ success: Bool) -> Void)? = nil) {
         let authStatus = getAuthorizationStatus()
         switch authStatus {
@@ -103,19 +109,19 @@ public class SwiftAdd2CalendarPlugin: NSObject, FlutterPlugin {
             completion?(false)
         }
     }
-    
+
     // Present edit event calendar modal
-    
+
     func presentEventCalendarDetailModal(event: EKEvent, eventStore: EKEventStore) {
         let eventModalVC = EKEventEditViewController()
         eventModalVC.event = event
         eventModalVC.eventStore = eventStore
         eventModalVC.editViewDelegate = self
-        
+
         if #available(iOS 13, *) {
             eventModalVC.modalPresentationStyle = .fullScreen
         }
-        
+
         if let root = UIApplication.shared.keyWindow?.rootViewController {
             root.present(eventModalVC, animated: true, completion: {
                 statusBarStyle = UIApplication.shared.statusBarStyle
@@ -126,11 +132,12 @@ public class SwiftAdd2CalendarPlugin: NSObject, FlutterPlugin {
 }
 
 extension SwiftAdd2CalendarPlugin: EKEventEditViewDelegate {
-    
+
     public func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
         controller.dismiss(animated: true, completion: {
             UIApplication.shared.statusBarStyle = statusBarStyle
         })
     }
 }
+
 
