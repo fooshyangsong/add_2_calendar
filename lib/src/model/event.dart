@@ -12,6 +12,7 @@ class Event {
       {@required this.title,
       this.description = '',
       this.location = '',
+        this.url = '',
       @required this.startDate,
       @required this.endDate,
       this.alarmInterval,
